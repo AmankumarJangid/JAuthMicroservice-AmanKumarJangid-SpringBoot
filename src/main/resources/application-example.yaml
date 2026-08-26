@@ -1,0 +1,52 @@
+# Development pphase configuation
+
+server:
+  port: 8080
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/auth_db
+    username: dbusername
+    password: dbpassword
+
+
+  #    hikari: // very important if we want to use HikariCP connection pool, otherwise it will use default connection pool which is not recommended for production
+  #      pool-name : HikariCP
+  #      maximum-pool-size : 5
+  #      connection-timeout : 10000
+  #      idle-timeout : 600000
+  #      max-lifetime : 1800000
+  #      validation-timeout : 1800000
+  #      leak-detection-threshold : 0
+  #      initialization-fail-timeout : -1
+
+
+  #Jpa Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect : org.hibernate.dialect.PostgreSQLDialect
+
+    sql:
+      init:
+        mode: always
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:"JWT_SECRET_KEY"} # Replace with your own secret key in production
+    issuer: ${JWT_ISSUER:"issuer"} # Replace with your own issuer in production
+    access-ttl-seconds: ${JWT_ACCESS_TTL_SECONDS:3600} # 1 hour
+    refresh-ttl-seconds: ${JWT_REFRESH_TTL_SECONDS:86400} # 24 hours
+    refresh-token-cookie-name : ${JWT_REFRESH_COOKIE_NAME:refreshToken}
+    cookie-secure : ${JWT_COOKIE_SECURE:true} # Set to true in production for HTTPS
+    cookie-http-only : ${JWT_COOKIE_HTTP_ONLY:true} # Prevent JavaScript access to cookies
+    cookie-same-site: ${JWT_COOKIE_SAME_SITE:lax}
+    cookie-domain: ${JWT_COOKIE_DOMAIN:localhost} # Set cookie domain to your frontend domain
+    cookie-path: ${JWT_COOKIE_PATH:/} # Set cookie path to root}
