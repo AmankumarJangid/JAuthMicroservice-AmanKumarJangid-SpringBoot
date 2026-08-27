@@ -36,7 +36,7 @@ public class User implements UserDetails {
     @Column(name = "user_name", length = 500)
     String name;
 
-    @Column(nullable = false)
+    @Column(name = "password" , nullable = true)
     String password; // we will store the hashed password here, we will use bcrypt to hash the password before storing it in the database
 
 
@@ -60,6 +60,7 @@ public class User implements UserDetails {
     @Column(nullable = true)
     @Enumerated(EnumType.STRING)
     private Provider provider = Provider.LOCAL;
+    private String providerId; // this is the id of the user in the provider's system, we can use this to fetch the user from the provider's system if needed
 
 
     // when ever we fetch user , it will be fetched together
