@@ -7,6 +7,7 @@ import com.gamegrind.dev.AuthApplication.entities.Role;
 import com.gamegrind.dev.AuthApplication.entities.User;
 import com.gamegrind.dev.AuthApplication.exceptions.ResourceNotFoundException;
 import com.gamegrind.dev.AuthApplication.helpers.UserHelper;
+import com.gamegrind.dev.AuthApplication.repositories.RefreshTokenRepository;
 import com.gamegrind.dev.AuthApplication.repositories.UserRepository;
 import com.gamegrind.dev.AuthApplication.services.UserService;
 import jakarta.transaction.Transactional;
@@ -25,6 +26,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenRepository refreshTokenRepository;
 
 
     @Override
@@ -94,7 +96,11 @@ public class UserServiceImpl implements UserService {
         /*if( !userRepository.existsById(uid) ) {
             throw new ResourceNotFoundException("User not found with id: " + userId);
         }*/
+
         User user = userRepository.findById(uid).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        refreshTokenRepository.deleteAllByUser(user);
+
         userRepository.delete(user);
     }
 

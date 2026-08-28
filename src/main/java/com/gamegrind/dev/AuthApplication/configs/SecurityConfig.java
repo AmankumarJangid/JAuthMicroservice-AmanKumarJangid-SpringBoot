@@ -55,10 +55,8 @@ public class SecurityConfig {
                     .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                     .authorizeHttpRequests(authorizeHttpRequests ->
                             authorizeHttpRequests
-                                    .requestMatchers("/api/v1/auth/register").permitAll()
-                                    .requestMatchers("/api/v1/auth/login").permitAll()
-                                    .requestMatchers("/api/v1/auth/logout").permitAll()
-                                    .requestMatchers("/api/v1/auth/refresh").permitAll()
+                                    // permits all the url in the api public urls
+                                    .requestMatchers(AppConstants.API_PUBLIC_URLS).permitAll()
                                     .anyRequest().authenticated()
                     )
                     .oauth2Login(outh2 ->

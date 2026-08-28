@@ -19,10 +19,6 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/")
-    public String hello() {
-        return "Hello, World!";
-    }
     // Create user API
     @PostMapping("")
     public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
