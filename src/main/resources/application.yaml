@@ -1,0 +1,61 @@
+#spring.application.name=AuthApplication
+
+# this is the main configuration file for entire which will overrite the which configuration to choose from the dev ,prod , qa etc
+
+#server.port : 8080 #valid but better stick with hierarchical manner
+
+spring:
+  application:
+    name: AuthApplication;
+  profiles:
+    active : dev # we can also change using environment variable uisng SPRING_PROFILES_ACTIVE=dev
+
+  #Database configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/auth_db
+    username : postgres
+    password : amanadmin
+
+  #Jpa Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+#Spring security Configuration
+
+#Email configuration
+
+# Outh2 application
+
+
+
+
+
+
+
+
+
+
+
+
+#### default connection pool
+##spring.datasource.hikari.connectionTimeout=20000
+##spring.datasource.hikari.maximumPoolSize=5
+#
+#spring.datasource.url=jdbc:postgresql://localhost:5432/auth_db
+#spring.datasource.username=postgres
+#spring.datasource.password=amanadmin
+#
+#spring.jpa.hibernate.ddl-auto=create
+#spring.jpa.show-sql=true
+#spring.jpa.init.mode=always
+#spring.jpa.properties.hibernate.format_sql=true
+#
+#
+#server.port = 5000
+

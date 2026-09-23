@@ -1,0 +1,105 @@
+server:
+  port: ${SERVER_PORT:4134}
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}?ssl=true&sslmode=verify-full&sslrootcert=${DB_SSL_CERT_PATH:/etc/ssl/certs/db-ca.pem}
+    #url : jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}?sslmode=require
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    hikari:
+      pool-name: HikariCP
+      maximum-pool-size: 5                      # Good for free/low-tier DBs with tight connection limits
+      connection-timeout: 10000                 # 10 seconds to wait for a connection from the pool
+      idle-timeout: 600000                      # 10 minutes before an idle connection is released
+      max-lifetime: 1800000                     # 30 minutes absolute maximum age of a connection
+      validation-timeout: 3000                  # 3 seconds to validate connection health
+      leak-detection-threshold: 2000            # Log slow/leaked connections
+      initialization-fail-timeout: -1           # Prevents app crash if DB is booting up during deployment
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update                        # CRITICAL FOR PRODUCTION: Never use 'update' or 'create-drop'
+    show-sql: false                             # Turn off in production to prevent massive log file bloat
+    open-in-view: false                         # CRITICAL: Prevents silent connection pool starvation
+    properties:
+      hibernate:
+        format_sql: false
+        default_batch_fetch_size: 20            # Optimizes fetch performance (prevents N+1 query issues)
+        jdbc:
+          batch_size: 30                        # Optimizes bulk INSERTs and UPDATEs
+        order_inserts: true                     # Required to make batching work efficiently
+        order_updates: true                     # Required to make batching work efficiently
+        connection:
+          provider_disables_autocommit: true    # Performance boost: efficient transaction management
+
+  cache:
+    type: redis
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+      ssl:
+        enabled: ${REDIS_SSL_ENABLED}
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
+              - openid
+          github:
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
+            scope:
+              - user:email
+              - read:user
+
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVER_URL}
+    properties:
+      security.protocol: SASL_SSL
+      sasl.mechanism: SCRAM-SHA-256
+      sasl.jaas.config: 'org.apache.kafka.common.security.scram.ScramLoginModule required username="avnadmin" password="${KAFKA_SERVER_PASSWORD}";'
+      ssl.truststore.type: "PEM"
+      ssl.truststore.certificates: "${KAFKA_CERT_DATA}"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: 1
+
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+    issuer: ${JWT_ISSUER:api.gamegrind.dev}
+    access-ttl-seconds: ${JWT_ACCESS_TTL_SECONDS:3600} # 1 hour
+    refresh-ttl-seconds: ${JWT_REFRESH_TTL_SECONDS:86400} # 24 hours
+    refresh-token-cookie-name: ${JWT_REFRESH_COOKIE_NAME:refreshToken}
+    cookie-secure: ${JWT_COOKIE_SECURE:true} # Set to true in production for HTTPS
+    cookie-http-only: ${JWT_COOKIE_HTTP_ONLY:true} # Prevent JavaScript access to cookies
+    cookie-same-site: ${JWT_COOKIE_SAME_SITE:lax}
+    cookie-domain: ${JWT_COOKIE_DOMAIN:localhost} # Set cookie domain to your frontend domain
+    cookie-path: ${JWT_COOKIE_PATH:/}
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+
+app:
+  auth:
+    frontend:
+      success-redirect: ${FRONT_SUCCESS_REDIRECT_URL}
+      failure-redirect: ${FRONT_FAILURE_REDIRECT_URL}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,https://amanjangid.me}
+    allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS}
+    allowed-headers: ${CORS_ALLOWED_HEADERS:Authorization,Content-Type}
+    allow-credentials: ${CORS_ALLOW_CREDENTIALS:true}

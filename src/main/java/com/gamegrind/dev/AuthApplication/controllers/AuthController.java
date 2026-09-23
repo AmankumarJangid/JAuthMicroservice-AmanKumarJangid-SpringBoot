@@ -1,9 +1,6 @@
 package com.gamegrind.dev.AuthApplication.controllers;
 
-import com.gamegrind.dev.AuthApplication.dtos.LoginRequest;
-import com.gamegrind.dev.AuthApplication.dtos.RefreshTokenRequest;
-import com.gamegrind.dev.AuthApplication.dtos.TokenResponse;
-import com.gamegrind.dev.AuthApplication.dtos.UserDto;
+import com.gamegrind.dev.AuthApplication.dtos.*;
 import com.gamegrind.dev.AuthApplication.entities.RefreshToken;
 import com.gamegrind.dev.AuthApplication.entities.User;
 import com.gamegrind.dev.AuthApplication.repositories.RefreshTokenRepository;
@@ -17,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +43,7 @@ public class AuthController {
     private final JwtService jwtService;
     private final ModelMapper modelMapper;
     private final CookieService cookieService;
+    private final StringRedisTemplate otpRedisTemplate;
 
     @PostMapping("/refresh")
     public ResponseEntity<TokenResponse> refreshToken(
@@ -114,6 +113,7 @@ public class AuthController {
                     .filter(v->!v.isBlank())
                     .findFirst();
 
+
             if( fromCookie.isPresent() ){
                 return fromCookie;
             }
@@ -152,7 +152,24 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<UserDto> registerUser(@RequestBody UserDto userDto) {
         // Implement registration logic here
-        return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(userDto));
+        String redisKey = String.format("%s:verified:%s",
+                OtpPurpose.REGISTRATION.name().toLowerCase(),
+                userDto.getEmail());
+
+        String isVerified = (String) otpRedisTemplate.opsForValue().get(redisKey);
+
+        if(  !"true".equalsIgnoreCase(isVerified)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        otpRedisTemplate.delete(redisKey);
+        // 3. Register the user
+        UserDto registeredUser = authService.registerUser(userDto);
+
+        // 4. THE FINAL SECURITY LAYER: Delete key to prevent reuse/replay attacks
+
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(registeredUser);
     }
 
     @PostMapping("/login")

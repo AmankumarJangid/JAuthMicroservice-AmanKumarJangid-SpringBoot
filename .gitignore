@@ -34,7 +34,7 @@ build/
 
 ### resources ###
 *.log
-application.yaml
 application-dev.yaml
-application-prod.yaml
 application-qa.yaml
+
+src/main/resources/db-ca.pem
