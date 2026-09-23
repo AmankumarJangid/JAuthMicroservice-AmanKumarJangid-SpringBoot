@@ -50,3 +50,15 @@ security:
     cookie-same-site: ${JWT_COOKIE_SAME_SITE:lax}
     cookie-domain: ${JWT_COOKIE_DOMAIN:localhost} # Set cookie domain to your frontend domain
     cookie-path: ${JWT_COOKIE_PATH:/} # Set cookie path to root}
+
+
+app:
+  auth:
+    frontend:
+      success-redirect: ${FRONT_SUCCESS_REDIRECT_URL:https://localhost:5173/}
+      failure-redirect: ${FRONT_FAILURE_REDIRECT_URL:http://localhost:5173/auth/failure}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173 }
+    allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS}
+    allowed-headers: ${CORS_ALLOWED_HEADERS:Authorization,Content-Type}
+    allow-credentials: ${CORS_ALLOW_CREDENTIALS:true}

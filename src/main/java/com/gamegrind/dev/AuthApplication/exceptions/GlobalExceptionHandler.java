@@ -2,8 +2,10 @@ package com.gamegrind.dev.AuthApplication.exceptions;
 
 import com.gamegrind.dev.AuthApplication.dtos.ErrorResponse;
 import io.jsonwebtoken.JwtException;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -23,7 +25,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(illegalArgumentError);
     }
 
-    @ExceptionHandler(JwtException.class)
+    @ExceptionHandler({JwtException.class , BadCredentialsException.class})
     public ResponseEntity<ErrorResponse> handleJWTException(JwtException exception){
         ErrorResponse jwtError = new ErrorResponse(exception.getMessage(), HttpStatus.UNAUTHORIZED, 401);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(jwtError);

@@ -22,7 +22,7 @@ public class UserDto {
     private String name;
     private String password;
     private String image;
-    private boolean enable = true;
+    private Boolean enable = true;
     private Instant createdAt = Instant.now();
     private Instant updatedAt = Instant.now();
     private Provider provider = Provider.LOCAL;

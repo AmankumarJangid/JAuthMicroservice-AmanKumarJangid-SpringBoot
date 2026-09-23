@@ -13,6 +13,8 @@ import com.gamegrind.dev.AuthApplication.services.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,11 +29,13 @@ public class UserServiceImpl implements UserService {
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 
     @Override
+    @Transactional
     public UserDto createUser(UserDto userDto) {
-
+        logger.info("[USER SERVICES] Create User Reached request with email : {} ", userDto.getEmail());
         if( userDto.getEmail() == null) {
             throw new IllegalArgumentException("Email is required");
         }
@@ -50,6 +54,7 @@ public class UserServiceImpl implements UserService {
         // if your have extra checks for username or password, you can add them here
         User user = modelMapper.map(userDto, User.class);
 
+        user.setEnable(true);
         user.setProvider(userDto.getProvider() != null ? userDto.getProvider() : Provider.LOCAL);
 
         // role assign here to user --- for authorization
@@ -85,7 +90,7 @@ public class UserServiceImpl implements UserService {
         if( userDto.getPassword() != null) {
             user.setPassword(passwordEncoder.encode( userDto.getPassword()));
         }
-        user.setEnable(userDto.isEnable());
+        user.setEnable(userDto.getEnable());
         User updatedUser = userRepository.save(user);
         return modelMapper.map(updatedUser, UserDto.class);
     }

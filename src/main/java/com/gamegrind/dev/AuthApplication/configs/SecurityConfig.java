@@ -7,6 +7,7 @@ import com.gamegrind.dev.AuthApplication.security.JwtAuthenticationFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -23,8 +24,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -42,12 +47,24 @@ public class SecurityConfig {
         this.successHandler = successHandler;
     }
 
+    @Value("${app.cors.allowed-origins}")
+    private List<String> allowedOrigins;
+
+    @Value("${app.cors.allowed-methods}")
+    private List<String> allowedMethods;
+
+    @Value("${app.cors.allowed-headers}")
+    private List<String> allowedHeaders;
+
+    @Value("${app.cors.allow-credentials}")
+    private Boolean allowCredentials;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http){
         try{
 
             http.csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                     // STATELESS if we don't want store any data server for future user , data is processed in one single sweep
                     // ALWAYS creates a HTTP session to store the current data for while
                     // IF_NEEDED (by default ) create only if its needed
@@ -104,6 +121,20 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration){
         return configuration.getAuthenticationManager();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(allowedOrigins);
+        configuration.setAllowedMethods(allowedMethods);
+        configuration.setAllowedHeaders(allowedHeaders);
+        configuration.setAllowCredentials(allowCredentials);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // Apply this configuration to every single API endpoint path
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
 //    @Bean
