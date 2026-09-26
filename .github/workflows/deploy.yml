@@ -63,4 +63,5 @@ jobs:
         environment_name: 'JAuthServer-Application-Aman-env'  # Replace with exact AWS Beanstalk Environment Name
         version_label: 'build-${{ github.sha }}'
         region: ap-south-1                          # Must match the region above
-        deployment_package: target/AuthApplication-0.0.1-SNAPSHOT.jar # Replace with the exact filename of your compiled .jar
+        deployment_package: target/AuthApplication-0.0.1-SNAPSHOT.jar
+        # Replace with the exact filename of your compiled .jar
