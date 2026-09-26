@@ -1,0 +1,66 @@
+name: Build and Deploy JAR to Elastic Beanstalk
+
+on:
+  push:
+    branches:
+      - main  # Triggers the workflow whenever you push code to the main branch
+
+jobs:
+  # STAGE 1: Build the JAR directly from the repository
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository Code
+      uses: actions/checkout@v4
+
+
+    - name: Set up Java Runtime
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin' # Matches AWS standard Java runtime
+        java-version: '25' 
+        cache: 'maven'      # Change to your project's Java version (e.g., 11, 21)
+
+    # Change this command to "./gradlew bootJar" if you are using Gradle instead of Maven
+    - name: Compile and Package Application
+      run: mvn clean package -DskipTests
+
+    - name: Archive Built JAR Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: jauth-server-package
+        path: target/*.jar      # Matches the compiled .jar file in Maven's target directory
+        retention-days: 1       # Temporary storage for the deployment step
+
+  # STAGE 2: Deploy the compiled JAR using your AWS Secrets
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build                # Ensures the deploy stage only runs if the build succeeds
+    
+    # ⚠️ MUST match the environment name at the top of your GitHub settings page
+    environment: AWS_ACCESS_KEY  
+
+    steps:
+    - name: Download Built JAR Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: jauth-server-package
+        path: target/           # Places the downloaded .jar back into a target folder
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-south-1   # Change to the AWS region where your Beanstalk sits (e.g., us-west-2)
+
+    - name: Deploy Artifact to AWS Elastic Beanstalk
+      uses: einaregilsson/beanstalk-deploy@v22
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        application_name: 'JAuthServer-Application-Aman'  # Replace with exact AWS Beanstalk Application Name
+        environment_name: 'JAuthServer-Application-Aman-env'  # Replace with exact AWS Beanstalk Environment Name
+        version_label: 'build-${{ github.sha }}'
+        region: ap-south-1                          # Must match the region above
+        deployment_package: target/AuthApplication-0.0.1-SNAPSHOT.jar # Replace with the exact filename of your compiled .jar
