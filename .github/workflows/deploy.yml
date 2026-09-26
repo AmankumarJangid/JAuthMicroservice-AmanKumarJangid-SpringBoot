@@ -64,4 +64,5 @@ jobs:
         version_label: 'build-${{ github.sha }}'
         region: ap-south-1                          # Must match the region above
         deployment_package: target/AuthApplication-0.0.1-SNAPSHOT.jar
+        use_existing_version_if_available: true
         # Replace with the exact filename of your compiled .jar
