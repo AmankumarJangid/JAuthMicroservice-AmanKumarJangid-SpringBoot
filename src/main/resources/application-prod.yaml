@@ -3,8 +3,8 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}?ssl=true&sslmode=verify-full&sslrootcert=${DB_SSL_CERT_PATH:/etc/ssl/certs/db-ca.pem}
-    #url : jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}?sslmode=require
+#    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}?ssl=true&sslmode=verify-full&sslrootcert=${DB_SSL_CERT_PATH:/etc/ssl/certs/db-ca.pem}
+    url : jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}?sslmode=require
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     hikari:
