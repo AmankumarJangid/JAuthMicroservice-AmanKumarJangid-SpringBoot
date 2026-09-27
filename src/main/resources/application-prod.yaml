@@ -1,5 +1,6 @@
 server:
   port: ${PORT:4134}
+  forward-headers-strategy: framework
 
 spring:
   datasource:
