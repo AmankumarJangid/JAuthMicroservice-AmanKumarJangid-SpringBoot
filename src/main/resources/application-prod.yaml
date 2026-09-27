@@ -1,5 +1,6 @@
 server:
   port: ${PORT:4134}
+  forward-headers-strategy: framework
 
 spring:
   datasource:
@@ -16,6 +17,7 @@ spring:
       validation-timeout: 3000                  # 3 seconds to validate connection health
       leak-detection-threshold: 2000            # Log slow/leaked connections
       initialization-fail-timeout: -1           # Prevents app crash if DB is booting up during deployment
+      auto-commit: false
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -70,7 +72,8 @@ spring:
       sasl.mechanism: SCRAM-SHA-256
       sasl.jaas.config: 'org.apache.kafka.common.security.scram.ScramLoginModule required username="avnadmin" password="${KAFKA_SERVER_PASSWORD}";'
       ssl.truststore.type: "PEM"
-      ssl.truststore.certificates: "${KAFKA_CERT_DATA}"
+#      ssl.truststore.certificates: "${KAFKA_CERT_DATA}"
+      ssl.truststore.location: "src/main/resources/ca.pem"
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

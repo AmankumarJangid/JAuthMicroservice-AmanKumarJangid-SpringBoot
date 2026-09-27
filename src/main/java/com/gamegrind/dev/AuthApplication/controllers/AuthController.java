@@ -12,6 +12,7 @@ import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -46,6 +47,7 @@ public class AuthController {
     private final StringRedisTemplate otpRedisTemplate;
 
     @PostMapping("/refresh")
+    @Transactional
     public ResponseEntity<TokenResponse> refreshToken(
 //            @CookieValue(name = "refreshToken", required = false) String refreshToken,
             @RequestBody(required = false) RefreshTokenRequest body,
@@ -150,6 +152,7 @@ public class AuthController {
 
 
     @PostMapping("/register")
+    @Transactional
     public ResponseEntity<UserDto> registerUser(@RequestBody UserDto userDto) {
         // Implement registration logic here
         String redisKey = String.format("%s:verified:%s",
