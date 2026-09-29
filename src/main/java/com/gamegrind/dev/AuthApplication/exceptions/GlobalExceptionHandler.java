@@ -30,4 +30,10 @@ public class GlobalExceptionHandler {
         ErrorResponse jwtError = new ErrorResponse(exception.getMessage(), HttpStatus.UNAUTHORIZED, 401);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(jwtError);
     }
+
+    @ExceptionHandler({RuntimeException.class})
+    public ResponseEntity<ErrorResponse> handleJWTException(Exception exception){
+        ErrorResponse error = new ErrorResponse(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, 500);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
 }

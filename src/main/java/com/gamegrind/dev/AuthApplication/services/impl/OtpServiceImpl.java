@@ -63,6 +63,7 @@ public class OtpServiceImpl implements OtpService {
 
             logger.info("Successfully pushed to Redis!");
         } catch (Exception e) {
+            System.out.println("[OTP Crashed :]" + e.getMessage() + e.getStackTrace());
             logger.error("REDIS CRASHED: ", e);
             // Optional: throw a custom exception so the email step gets skipped on database errors
             throw new RuntimeException("Service temporarily unavailable, please try again.");
